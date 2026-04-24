@@ -1,0 +1,284 @@
+{
+  "name": "Travel-Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://yiafsnyxxgjbpqgiuaez.supabase.co/rest/v1/travel_alerts?user_id=eq.1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWZzbnl4eGdqYnBxZ2l1YWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTg3OTQsImV4cCI6MjA5MjMzNDc5NH0.VRN0tEDhIQVs-JduvYYp1qXvAfIJ8DEFJjgdw4woQEM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWZzbnl4eGdqYnBxZ2l1YWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTg3OTQsImV4cCI6MjA5MjMzNDc5NH0.VRN0tEDhIQVs-JduvYYp1qXvAfIJ8DEFJjgdw4woQEM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer ",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"user_id\": \"1\",\n  \"current_lat\": {{ $json.body.lat }},\n  \"current_lng\": {{ $json.body.lng }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -48,
+        -128
+      ],
+      "id": "f81e8647-5f99-4b28-b0ca-afe20d87a532",
+      "name": "Update Location",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "=https://yiafsnyxxgjbpqgiuaez.supabase.co/rest/v1/travel_alerts?user_id=eq.1&status=eq.active&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWZzbnl4eGdqYnBxZ2l1YWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTg3OTQsImV4cCI6MjA5MjMzNDc5NH0.VRN0tEDhIQVs-JduvYYp1qXvAfIJ8DEFJjgdw4woQEM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWZzbnl4eGdqYnBxZ2l1YWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTg3OTQsImV4cCI6MjA5MjMzNDc5NH0.VRN0tEDhIQVs-JduvYYp1qXvAfIJ8DEFJjgdw4woQEM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        176,
+        -128
+      ],
+      "id": "c13f46e0-7aea-40df-9ef4-2ef64173348d",
+      "name": "Get Trip",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "=https://router.project-osrm.org/route/v1/driving/{{ $('Get Trip').first().json.current_lng }},{{ $('Get Trip').first().json.current_lat }};{{ $('Get Trip').first().json.dest_lng }},{{ $('Get Trip').first().json.dest_lat }}?overview=false",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        -128
+      ],
+      "id": "35f345d6-697c-4570-87dc-8628e4247be1",
+      "name": "Distance check"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "54cf9a1c-f089-4af0-a31c-5870d938f7cb",
+              "leftValue": "={{ $json.routes[0].legs[0].distance }}",
+              "rightValue": 8000,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        -128
+      ],
+      "id": "b5df5dab-c0ba-4d6a-872b-7152597e3e71",
+      "name": "500m check"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ntfy.sh/Travel-Alarm-Ak",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"🚨 DESTINATION AA GAYI!\",\n  \"message\": \"Utho! {{ $('Get Trip').item.json.destination }} aa gayi!\",\n  \"priority\": \"max\",\n  \"tags\": [\"rotating_light\", \"alarm_clock\"],\n  \"sound\": \"alarm\",\n  \"actions\": [\n    {\n      \"action\": \"http\",\n      \"label\": \"Snooze 5 min\",\n      \"url\": \"https://akchampaneria015.app.n8n.cloud/webhook/snooze-alarm\",\n      \"method\": \"POST\",\n      \"body\": \"{\\\"user_id\\\": \\\"1\\\"}\",\n      \"headers\": {\"Content-Type\": \"application/json\"},\n      \"clear\": true\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        848,
+        -128
+      ],
+      "id": "58e83544-ad28-48c8-9633-5ee246502113",
+      "name": "nfty alarm"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://yiafsnyxxgjbpqgiuaez.supabase.co/rest/v1/travel_alerts?user_id=eq.1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWZzbnl4eGdqYnBxZ2l1YWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTg3OTQsImV4cCI6MjA5MjMzNDc5NH0.VRN0tEDhIQVs-JduvYYp1qXvAfIJ8DEFJjgdw4woQEM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYWZzbnl4eGdqYnBxZ2l1YWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTg3OTQsImV4cCI6MjA5MjMzNDc5NH0.VRN0tEDhIQVs-JduvYYp1qXvAfIJ8DEFJjgdw4woQEM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"status\": \"done\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1072,
+        -128
+      ],
+      "id": "bbd30710-096d-4bde-b5a6-d35e0bcc25a9",
+      "name": "status done"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "travel_alerts",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        -128
+      ],
+      "id": "a0519f66-59af-41f4-8b9a-86c268c0af4f",
+      "name": "Location",
+      "webhookId": "b84d23de-f116-4640-b1c0-30ac9b02b4ef"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Update Location": {
+      "main": [
+        [
+          {
+            "node": "Get Trip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Trip": {
+      "main": [
+        [
+          {
+            "node": "Distance check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Distance check": {
+      "main": [
+        [
+          {
+            "node": "500m check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "500m check": {
+      "main": [
+        [
+          {
+            "node": "nfty alarm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nfty alarm": {
+      "main": [
+        [
+          {
+            "node": "status done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Location": {
+      "main": [
+        [
+          {
+            "node": "Update Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1af2a591-99cd-44fa-b42b-e646836a6c48",
+  "meta": {
+    "instanceId": "2ea9f52d9ad3060fd30c79b96e978d4078263cc954662f77e4efb5b9872608b4"
+  },
+  "id": "ZRjytwFCptKSVAFT",
+  "tags": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "Snooze alarm",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "snooze-alarm",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -384,
+        -80
+      ],
+      "id": "9f75e2fa-c9fc-4ef7-9f47-2d100393653f",
+      "name": "Webhook",
+      "webhookId": "3586fb0c-760e-4cbb-8786-9f814bad194c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ntfy.sh/Travel-Alarm-Ak",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "{\"title\":\"🚨 SNOOZE KHATAM! UTHO!\",\"message\":\"Ab toh utho!\",\"priority\":\"max\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -128,
+        -80
+      ],
+      "id": "a65a9aba-c215-40f7-98c3-fd208b815480",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d28b4d62-8dc4-4c1d-a6ec-5a58dc772dc3",
+  "meta": {
+    "instanceId": "2ea9f52d9ad3060fd30c79b96e978d4078263cc954662f77e4efb5b9872608b4"
+  },
+  "id": "FH1oHTpo5lNzoktO",
+  "tags": []
+}
